@@ -1,3 +1,6 @@
+"""
+    Web应用的部分视图函数
+"""
 import json
 import requests
 from django.contrib import messages
@@ -13,6 +16,11 @@ from .models import Attendance, Session, Subject
 
 
 def login_page(request):
+    """
+    登录页面
+    如果用户已经登录，则根据用户类型重定向到不同的主页（管理员、教职员工或学生）。
+    如果用户未登录，则显示登录页面。
+    """
     if request.user.is_authenticated:
         if request.user.user_type == '1':
             return redirect(reverse("admin_home"))
@@ -24,6 +32,10 @@ def login_page(request):
 
 
 def doLogin(request, **kwargs):
+    """
+    处理登录请求
+    首先使用Google reCAPTCHA进行人机验证，然后使用EmailBackend进行用户认证
+    """
     if request.method != 'POST':
         return HttpResponse("<h4>Denied</h4>")
     else:
@@ -63,6 +75,7 @@ def doLogin(request, **kwargs):
 
 
 def logout_user(request):
+    """处理用户退出登录请求，登出后重定向到登录页面"""
     if request.user != None:
         logout(request)
     return redirect("/")
@@ -70,6 +83,7 @@ def logout_user(request):
 
 @csrf_exempt
 def get_attendance(request):
+    """获取指定课程和学期的出勤记录"""
     subject_id = request.POST.get('subject')
     session_id = request.POST.get('session')
     try:

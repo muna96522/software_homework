@@ -15,6 +15,12 @@ from .models import *
 
 
 def student_home(request):
+    """
+    学生首页视图
+    显示学生的考勤统计信息，包括总科目数、总考勤次数、出勤次数和百分比
+    为每个科目统计出勤和缺勤数据
+    返回首页模板并传递相关数据
+    """
     student = get_object_or_404(Student, admin=request.user)
     total_subject = Subject.objects.filter(course=student.course).count()
     total_attendance = AttendanceReport.objects.filter(student=student).count()
@@ -54,6 +60,10 @@ def student_home(request):
 
 @ csrf_exempt
 def student_view_attendance(request):
+    """
+    查看学生考勤记录的视图
+    支持按科目和日期范围查询考勤记录
+    """
     student = get_object_or_404(Student, admin=request.user)
     if request.method != 'POST':
         course = get_object_or_404(Course, id=student.course.id)
@@ -87,6 +97,12 @@ def student_view_attendance(request):
 
 
 def student_apply_leave(request):
+    """
+    学生请假申请功能
+    处理请假表单的提交
+    显示历史请假记录
+    包含表单验证和错误处理
+    """
     form = LeaveReportStudentForm(request.POST or None)
     student = get_object_or_404(Student, admin_id=request.user.id)
     context = {
@@ -111,6 +127,11 @@ def student_apply_leave(request):
 
 
 def student_feedback(request):
+    """
+    学生反馈功能
+    处理反馈表单提交
+    显示历史反馈记录
+    """
     form = FeedbackStudentForm(request.POST or None)
     student = get_object_or_404(Student, admin_id=request.user.id)
     context = {
@@ -136,6 +157,9 @@ def student_feedback(request):
 
 
 def student_view_profile(request):
+    """
+    学生查看/编辑个人资料功能
+    """
     student = get_object_or_404(Student, admin=request.user)
     form = StudentEditForm(request.POST or None, request.FILES or None,
                            instance=student)
@@ -177,6 +201,7 @@ def student_view_profile(request):
 
 @csrf_exempt
 def student_fcmtoken(request):
+    """处理FCM（Firebase Cloud Messaging）令牌"""
     token = request.POST.get('token')
     student_user = get_object_or_404(CustomUser, id=request.user.id)
     try:
@@ -188,6 +213,10 @@ def student_fcmtoken(request):
 
 
 def student_view_notification(request):
+    """
+    查看通知功能
+    显示学生的所有通知
+    """
     student = get_object_or_404(Student, admin=request.user)
     notifications = NotificationStudent.objects.filter(student=student)
     context = {
@@ -198,6 +227,10 @@ def student_view_notification(request):
 
 
 def student_view_result(request):
+    """
+    查看成绩功能
+    显示学生的所有成绩记录
+    """
     student = get_object_or_404(Student, admin=request.user)
     results = StudentResult.objects.filter(student=student)
     context = {

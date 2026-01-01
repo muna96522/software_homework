@@ -44,29 +44,29 @@
 
 
                         <div class="form-group">
-                            <label>Select Subject</label>
+                            <label>选择科目</label>
                             <select  id="subject" class="form-control">
                                 <option value="">----</option>
                                 {% for subject in subjects  %}
                                 <option value="{{subject.id}}">{{subject.name}} </option>
                                 {% endfor %}
                             </select>
+                            <small class="form-text text-muted">选择要查看出勤的科目</small>
                         </div>
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label>Start Date</label>
-                                    <input type="date" class="form-control" placeholder="Start Date" name="start_date" required id="start_date">
+                                    <label>开始日期</label>
+                                    <input type="date" class="form-control" placeholder="开始日期" name="start_date" required id="start_date">
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label>End Date</label>
-                                    <input type="date" class="form-control" placeholder="End Date" name="end_date"  id="end_date">
+                                    <label>结束日期</label>
+                                    <input type="date" class="form-control" placeholder="结束日期" name="end_date"  id="end_date">
                                 </div>
                             </div>
-                            <button type="button" id="fetch_attendance" class="btn btn-primary btn-block">Fetch
-                                Attendance Data</button>
+                            <button type="button" id="fetch_attendance" class="btn btn-primary btn-block">查询出勤数据</button>
                </div>
 
                     </div>
@@ -96,7 +96,7 @@
             var start_date = $("#start_date").val()
             var end_date = $("#end_date").val()
             if (subject.length  == 0 || end_date.length ==0 ||start_date.length == 0){
-                alert("Please Select Subject and Date Range");
+                alert("请选择科目和日期范围");
                 return false;
             }
             $("#attendance_data").html(null)
@@ -111,17 +111,17 @@
             }).done(function (response) {
                 var json_data = JSON.parse(response)
                 if (json_data.length < 1) {
-                    $("#attendance_data").html("<div class='col-md-12 alert alert-danger'>No Data For Specified Parameters</div>")
+                    $("#attendance_data").html("<div class='col-md-12 alert alert-danger'>未找到指定条件的出勤记录</div>")
 
                 } else {
                     var div_data = ""
                          
                     for (key in json_data) {
                     if (json_data[key]['status']){
-                        div_data += "<div class='col-lg-3 attendance_div_green'><b>"+ json_data[key]['date'] + "</b><br/>Present</div>" 
+                        div_data += "<div class='col-lg-3 attendance_div_green'><b>"+ json_data[key]['date'] + "</b><br/>出勤</div>" 
                     }else{
 
-                        div_data += "<div class='col-lg-3 attendance_div_red'><b>"+ json_data[key]['date'] + "</b><br/>Absent</div>"
+                        div_data += "<div class='col-lg-3 attendance_div_red'><b>"+ json_data[key]['date'] + "</b><br/>缺勤</div>"
                     }
                 }
                     div_data += ""
@@ -129,7 +129,7 @@
 
                 }
             }).fail(function (response) {
-                $("#attendance_data").html("Error While Fetching Records")
+                $("#attendance_data").html("获取记录时出错")
             })
 
 

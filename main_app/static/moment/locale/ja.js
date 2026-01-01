@@ -42,7 +42,7 @@
             nextDay : '[明日] LT',
             nextWeek : function (now) {
                 if (now.week() < this.week()) {
-                    return '[来週]dddd LT';
+                    return '[来周]dddd LT';
                 } else {
                     return 'dddd LT';
                 }
@@ -50,7 +50,7 @@
             lastDay : '[昨日] LT',
             lastWeek : function (now) {
                 if (this.week() < now.week()) {
-                    return '[先週]dddd LT';
+                    return '[先周]dddd LT';
                 } else {
                     return 'dddd LT';
                 }
@@ -75,8 +75,8 @@
             ss : '%d秒',
             m : '1分',
             mm : '%d分',
-            h : '1時間',
-            hh : '%d時間',
+            h : '1时间',
+            hh : '%d时间',
             d : '1日',
             dd : '%d日',
             M : '1ヶ月',

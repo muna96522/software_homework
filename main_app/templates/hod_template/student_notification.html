@@ -17,13 +17,13 @@
                         <table id="example2" class="table table-bordered table-hover">
                             <thead>
                                 <tr>
-                                    <th>SN</th>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Gender</th>
-                                    <th>Course</th>
-                                    <th>Avatar</th>
-                                    <th>Action</th>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>邮箱</th>
+                                    <th>性别</th>
+                                    <th>专业</th>
+                                    <th>头像</th>
+                                    <th>操作</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -36,13 +36,13 @@
                                     <td>{{student.student.course.name}}</td>
                                     <td>
                                         {% if student.profile_pic == ""  %}
-                                        No Image
+                                        无图片
                                         {% else %}
                                         <img class="img img-fluid mb-2" height="100" width="100"
                                             src="{{student.profile_pic}}" alt="">
                                         {% endif %}
                                     </td>
-                                    <td><button data-toggle = "modal" data-target = "#myModal"class="btn btn-primary show_notification" value="{{student.id}}">Send Notification</button> 
+                                    <td><button data-toggle = "modal" data-target = "#myModal"class="btn btn-primary show_notification" value="{{student.id}}">发送通知</button> 
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -60,7 +60,7 @@
    <div class = "modal-dialog">
       <div class = "modal-content">
          
-         <div class = "modal-header">Send Notification
+         <div class = "modal-header">发送通知
             <button type = "button" class = "close" data-dismiss = "modal" aria-hidden = "true">
                   &times;
             </button>
@@ -70,18 +70,19 @@
          
          <div class = "modal-body">
             <div class="form-group">
-                <input type="text" id="message" class='form-control'>
+                <label>通知内容</label>
+                <input type="text" id="message" class='form-control' placeholder="请输入通知内容">
                 <input type="hidden"  id="student_id" class='form-control'>
             </div>
          </div>
          
          <div class = "modal-footer">
             <button type = "button" class = "btn btn-default" data-dismiss = "modal">
-               Close
+               关闭
             </button>
             
             <button type = "button" id='send' class = "btn btn-success send_notification">
-               Send Notification
+               发送通知
             </button>
          </div>
          
@@ -112,15 +113,15 @@
            
                 
             if (response == 'True'){
-                alert("Notification Sent");
+                alert("通知已发送");
                 location.reload();
               }else{
-                alert("Notification could not be saved. Please try again.");
+                alert("通知发送失败，请重试。");
               }
                
            
         }).fail(function (response) {
-            alert("Error in saving token")
+            alert("保存时出错")
         })
 
     }

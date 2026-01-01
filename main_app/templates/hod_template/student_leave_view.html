@@ -17,13 +17,13 @@
                     <div class="table card-body">
                         <table class="table table-bordered">
                             <tr>
-                                <th>SN</th>
-                                <th>Student</th>
-                                <th>Course</th>
-                                <th>Message</th>
-                                <th>Leave Date</th>
-                                <th>Submitted On</th>
-                                <th>Action</th>
+                                <th>序号</th>
+                                <th>学生</th>
+                                <th>专业</th>
+                                <th>请假原因</th>
+                                <th>请假日期</th>
+                                <th>提交时间</th>
+                                <th>操作</th>
 
                             </tr>
                             {% for leave in  allLeave %}
@@ -37,11 +37,11 @@
                                  
                                       
                                       {% if leave.status == 0 %}
-                                           <td> <button data-toggle = "modal" data-target = "#reply_modal" value="{{leave.id}}" class="btn btn-primary reply_open_modal">Reply</button>
+                                           <td> <button data-toggle = "modal" data-target = "#reply_modal" value="{{leave.id}}" class="btn btn-primary reply_open_modal">回复</button>
 {% elif leave.status == -1 %}
-<td><span  class='badge badge-danger'>Rejected</span></td>
+<td><span  class='badge badge-danger'>已拒绝</span></td>
 {% else %}
-<td><span  class='badge badge-success'>Approved</span></td>
+<td><span  class='badge badge-success'>已批准</span></td>
 
                                             <td>{{feedback.updated_at}}</td>
                                       {% endif %}
@@ -77,20 +77,20 @@
          
          <div class = "modal-body">
              <input type="hidden"  id="id">
-           <p> Reply To <span id="reply_name"></span>'s Leave Request</p>  
+           <p> 回复 <span id="reply_name"></span> 的请假申请</p>  
            <select id="reply_leave_status" class="form-control">
-<option value="">-- Select --</option>
-<option value="1">Approve</option>
-<option value="-1">Reject</option>
+<option value="">-- 请选择 --</option>
+<option value="1">批准</option>
+<option value="-1">拒绝</option>
            </select>
         </div>
         
         <div class = "modal-footer">
             <button type = "button" class = "btn btn-default" data-dismiss = "modal">
-                Close
+                关闭
             </button>
             
-            <button id="reply_btn" class="btn btn-success btn-block">Submit</button>
+            <button id="reply_btn" class="btn btn-success btn-block">提交</button>
          
          </div>
          
@@ -125,16 +125,16 @@
         }
     }).done(function(response){
         if (response == "True"){
-            alert("Leave Response Has Been Saved!")
+            alert("请假审批结果已保存！")
             location.reload()
         }else{
-            alert("Reply Could Not Be Sent")
+            alert("回复发送失败")
         }
     }).fail(function(response){
-        alert("Error Occured. ")
+        alert("发生错误")
     })
 }else{
-    alert("Choose valid response")
+    alert("请选择有效的回复")
 }
 
           })

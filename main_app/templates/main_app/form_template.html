@@ -8,7 +8,9 @@
             {{field.errors}}
             {{field.label_tag}}
             {{field}}
-
+            {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %}
         </div>
         {% endfor %}
 
@@ -23,7 +25,7 @@
             {% if button_text %}
             {{button_text}}
             {% else %}
-            Submit
+            提交
             {% endif %}
 
         </button>

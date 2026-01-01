@@ -13,8 +13,19 @@
                     <div class="card-header">
                         <h3 class="card-title">{{page_title}}</h3>
                     </div>
-
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="Add Session"%}
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h5><i class="icon fas fa-info"></i> 说明</h5>
+                            <p><strong>学期</strong>是指学年或学期的时间范围，例如：</p>
+                            <ul>
+                                <li>2024-2025学年</li>
+                                <li>2024春季学期</li>
+                                <li>2024秋季学期</li>
+                            </ul>
+                            <p class="mb-0">学生属于某个学期，用于管理不同学年的学生和出勤记录。</p>
+                        </div>
+                    </div>
+                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="添加学期"%}
                 </div>
                 <!-- /.card -->
 

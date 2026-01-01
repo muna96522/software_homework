@@ -11,11 +11,11 @@
             next: "次",
             today: "今日",
             month: "月",
-            week: "週",
+            week: "周",
             day: "日",
             list: "予定リスト"
         },
-        weekLabel: "週",
+        weekLabel: "周",
         allDayText: "終日",
         eventLimitText: function (n) {
             return "他 " + n + " 件";

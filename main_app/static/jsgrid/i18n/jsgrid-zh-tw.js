@@ -2,8 +2,8 @@
 
     jsGrid.locales["zh-tw"] = {
         grid: {
-            noDataContent: "暫無資料",
-            deleteConfirm: "確認刪除？",
+            noDataContent: "暂无資料",
+            deleteConfirm: "确认删除？",
             pagerFormat: "頁碼: {first} {prev} {pages} {next} {last} &nbsp;&nbsp; {pageIndex} / {pageCount}",
             pagePrevText: "上一頁",
             pageNextText: "下一頁",
@@ -14,20 +14,20 @@
         },
 
         loadIndicator: {
-            message: "載入中..."
+            message: "载入中..."
         },
 
         fields: {
             control: {
                 searchModeButtonTooltip: "切換為搜尋",
                 insertModeButtonTooltip: "切換為新增",
-                editButtonTooltip: "編輯",
-                deleteButtonTooltip: "刪除",
+                editButtonTooltip: "编辑",
+                deleteButtonTooltip: "删除",
                 searchButtonTooltip: "搜尋",
                 clearFilterButtonTooltip: "清除搜尋條件",
                 insertButtonTooltip: "新增",
                 updateButtonTooltip: "修改",
-                cancelEditButtonTooltip: "取消編輯"
+                cancelEditButtonTooltip: "取消编辑"
             }
         },
 

@@ -22,24 +22,26 @@
 
 
                         <div class="form-group">
-                            <label>Subject</label>
+                            <label>科目</label>
                             <select name="subject" class="form-control" id='subject'>
                                 <option value="">----</option>
                                 {% for subject in subjects  %}
                                 <option value="{{subject.id}}">{{subject.name}}</option>
                                 {% endfor %}
                             </select>
+                            <small class="form-text text-muted">选择要录入成绩的科目</small>
                         </div>
 
 
                         <div class="form-group">
-                            <label>Session Year</label>
+                            <label>学期</label>
                             <select name="session" id='session' class="form-control">
                                 <option value="">----</option>
                                 {% for session in sessions  %}
                                 <option value="{{session.id}}">{{session}} </option>
                                 {% endfor %}
                             </select>
+                            <small class="form-text text-muted">选择要录入成绩的学期</small>
                         </div>
 
 
@@ -47,8 +49,7 @@
                     <!-- /.card-body -->
 
                     <div class="card-footer">
-                        <button type="button" id='fetch_student' class="btn btn-primary btn-block">Fetch
-                            Students</button>
+                        <button type="button" id='fetch_student' class="btn btn-primary btn-block">查询学生</button>
                         <div class="form-group" id="student_data">
 
                         </div>
@@ -74,7 +75,7 @@
             var session = $("#session").val()
             $("#student_data").html(null)
 if (subject.length  == 0 || session.length == 0){
-    alert("Please select session and subject");
+    alert("请选择学期和科目");
     return false;
 }
             $.ajax({
@@ -87,19 +88,19 @@ if (subject.length  == 0 || session.length == 0){
             }).done(function (response) {
                 var json_data = JSON.parse(response)
                 if (json_data.length < 1) {
-                    alert("No data to display")
+                    alert("没有数据可显示")
                 } else {
-                    var div_data = "<hr/><div class='form-group'> <label> Student List</label> <select class='student_list form-control' name='student_list'> "
+                    var div_data = "<hr/><div class='form-group'> <label> 学生列表</label> <select class='student_list form-control' name='student_list'> "
 
                     for (key in json_data) {
                         div_data += "<option value='" + json_data[key]['id'] + "'>" + json_data[key]['name'] + " </option>"
                     }
                     div_data += "</select></div>"
-                    div_data += "<div class='form-group row'> <div class='col-md-6'> <label> Test Score </label> <input class='form-control' name='test' placeholder='Test Score' max='40' min='0' required type='number' /></div><div class='col-md-6'><label> Exam Score </label>  <input class='form-control' placeholder='Exam Score'  name='exam' max='60' min='0' required type='number' /> </div></div><div class='form-group'><button id='save_attendance' class='btn btn-success' type='submit'>Save Result</button></div></div>"
+                    div_data += "<div class='form-group row'> <div class='col-md-6'> <label> 平时成绩 </label> <input class='form-control' name='test' placeholder='平时成绩（0-40分）' max='40' min='0' required type='number' /></div><div class='col-md-6'><label> 考试成绩 </label>  <input class='form-control' placeholder='考试成绩（0-60分）'  name='exam' max='60' min='0' required type='number' /> </div></div><div class='form-group'><button id='save_attendance' class='btn btn-success' type='submit'>保存成绩</button></div></div>"
                     $("#student_data").html(div_data)
                 }
             }).fail(function (response) {
-                alert("Error in fetching students")
+                alert("获取学生信息时出错")
             })
 
 

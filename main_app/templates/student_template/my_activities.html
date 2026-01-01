@@ -1,0 +1,81 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                        <div class="card-tools">
+                            <a href="{% url 'student_view_activities' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> 浏览活动
+                            </a>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example2" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>活动标题</th>
+                                    <th>发起教师</th>
+                                    <th>活动地点</th>
+                                    <th>开始时间</th>
+                                    <th>结束时间</th>
+                                    <th>报名时间</th>
+                                    <th>签到状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for registration in registrations %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ registration.activity.title }}</td>
+                                    <td>{{ registration.activity.organizer.admin.last_name }}{{ registration.activity.organizer.admin.first_name }}</td>
+                                    <td>{{ registration.activity.location }}</td>
+                                    <td>{{ registration.activity.start_time|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ registration.activity.end_time|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ registration.registered_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% if registration.attendance %}
+                                            {% if registration.attendance.is_present %}
+                                                <span class="badge badge-success">已签到</span>
+                                            {% else %}
+                                                <span class="badge badge-warning">未签到</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge badge-secondary">待签到</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if registration.activity.id in feedback_activity_ids %}
+                                            <span class="badge badge-info">已评价</span>
+                                        {% else %}
+                                            <a href="{% url 'student_feedback_activity' registration.activity.id %}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-star"></i> 评价
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">您还没有报名任何活动</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+

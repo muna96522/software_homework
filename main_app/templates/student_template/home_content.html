@@ -4,6 +4,15 @@
 {% block content %}
 <section class="content">
     <div class="container-fluid">
+        <!-- 学生标识 -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-user-graduate"></i> 学生个人中心</h4>
+                    <p>欢迎，同学！您可以在这里查看您的出勤记录、成绩、通知，以及申请请假和提交反馈。</p>
+                </div>
+            </div>
+        </div>
         <!-- Small boxes (Stat box) -->
         <div class="row">
             <div class="col-lg-3 col-6">
@@ -12,7 +21,7 @@
                     <div class="inner">
                         <h3>{{total_attendance}}</h3>
 
-                        <p>Total Attendance</p>
+                        <p>总出勤次数</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-bag"></i>
@@ -27,7 +36,7 @@
                     <div class="inner">
                         <h3>{{ percent_present }}<sup style="font-size: 20px">%</sup></h3>
 
-                        <p>Percentage Present</p>
+                        <p>出勤率</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
@@ -42,7 +51,7 @@
                     <div class="inner">
                         <h3>{{percent_absent}}<sup style="font-size: 20px">%</sup></h3>
 
-                        <p>Percentage Absent</p>
+                        <p>缺勤率</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-stats-bars"></i>
@@ -57,7 +66,7 @@
                     <div class="inner">
                         <h3>{{total_subject}}</h3>
 
-                        <p>Total Subject</p>
+                        <p>科目总数</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-pie-graph"></i>
@@ -73,7 +82,7 @@
                         <!-- DONUT CHART -->
                         <div class="card card-secondary">
                           <div class="card-header">
-                            <h3 class="card-title">{{page_title}}</h3>
+                            <h3 class="card-title"><i class="fas fa-chart-pie"></i> 出勤率统计</h3>
             
                             <div class="card-tools">
                               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -93,7 +102,7 @@
             
                         <div class="card card-secondary">
                           <div class="card-header">
-                            <h3 class="card-title">{{page_title}}</h3>
+                            <h3 class="card-title"><i class="fas fa-chart-bar"></i> 各科目出勤统计</h3>
             
                             <div class="card-tools">
                               <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -129,7 +138,7 @@ $(document).ready(function(){
     var attendanceDataCanvas = $('#attendanceData').get(0).getContext('2d')
     var donutData        = {
       labels: [
-         'Present', 'Absent'
+         '出勤', '缺勤'
       ],
       datasets: [
         {
@@ -154,7 +163,7 @@ var areaChartData = {
     labels  : subjects,
     datasets: [
     {
-        label               : 'Present In Class',
+        label               : '出勤次数',
         backgroundColor     : 'rgba(60,141,188,0.9)',
         borderColor         : 'rgba(60,141,188,0.8)',
         pointRadius          : false,
@@ -166,7 +175,7 @@ var areaChartData = {
       },
 
       {
-        label               : 'Absent In Class',
+        label               : '缺勤次数',
         backgroundColor     : 'rgba(210, 214, 222, 1)',
         borderColor         : 'rgba(210, 214, 222, 1)',
         pointRadius         : false,

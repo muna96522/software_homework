@@ -11,15 +11,20 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">{{page_title}}</h3>
+                        <div class="card-tools">
+                            <a href="{% url 'add_course' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> 添加新专业
+                            </a>
+                        </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
                         <table id="example2" class="table table-bordered table-hover">
                             <thead>
                                 <tr>
-                                    <th>SN</th>
-                                    <th>Course Name</th>
-                                    <th>Edit</th>
+                                    <th>序号</th>
+                                    <th>专业名称</th>
+                                    <th>操作</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -28,8 +33,12 @@
                                     <td>{{ forloop.counter }}</td>
                                     <td>{{course.name}}</td>
                                     <td>
-                                        <a href="{% url 'edit_course' course.id %}" class="btn btn-primary">Edit</a> -
-                                        <a href="{% url 'delete_course' course.id %}" onclick="return confirm('Are you sure you want to delete this course ?')" class="btn btn-danger">Delete</a> 
+                                        <a href="{% url 'edit_course' course.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </a>
+                                        <a href="{% url 'delete_course' course.id %}" onclick="return confirm('确定要删除此专业吗？')" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </a> 
                                     </td>
                                 </tr>
                                 {% endfor %}

@@ -1,0 +1,229 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <!-- 搜索和筛选框 -->
+                        <form method="get" class="mb-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input type="text" name="search" class="form-control" placeholder="搜索活动（标题、地点、教师）" value="{{ search_query }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <select name="status" class="form-control">
+                                        <option value="">全部状态</option>
+                                        <option value="0" {% if status_filter == '0' %}selected{% endif %}>待审批</option>
+                                        <option value="1" {% if status_filter == '1' %}selected{% endif %}>已通过</option>
+                                        <option value="2" {% if status_filter == '2' %}selected{% endif %}>已拒绝</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <button class="btn btn-primary btn-block" type="submit">
+                                        <i class="fas fa-search"></i> 搜索
+                                    </button>
+                                </div>
+                                <div class="col-md-2">
+                                    {% if search_query or status_filter %}
+                                    <a href="{% url 'admin_manage_activities' %}{% if sort_by %}?sort_by={{ sort_by }}&sort_order={{ sort_order }}{% endif %}" class="btn btn-secondary btn-block">
+                                        <i class="fas fa-times"></i> 清除
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <!-- 保留排序参数 -->
+                            {% if sort_by %}
+                            <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                            <input type="hidden" name="sort_order" value="{{ sort_order }}">
+                            {% endif %}
+                        </form>
+                        
+                        <table id="example2" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>活动标题</th>
+                                    <th>发起教师</th>
+                                    <th>活动地点</th>
+                                    <th class="sortable" data-sort="start_time">
+                                        开始时间
+                                        <span class="sort-icons">
+                                            <i class="fas fa-sort-up sort-up {% if sort_by == 'start_time' and sort_order == 'desc' %}active{% endif %}" data-sort="start_time" data-order="desc"></i>
+                                            <i class="fas fa-sort-down sort-down {% if sort_by == 'start_time' and sort_order == 'asc' %}active{% endif %}" data-sort="start_time" data-order="asc"></i>
+                                        </span>
+                                    </th>
+                                    <th class="sortable" data-sort="end_time">
+                                        结束时间
+                                        <span class="sort-icons">
+                                            <i class="fas fa-sort-up sort-up {% if sort_by == 'end_time' and sort_order == 'desc' %}active{% endif %}" data-sort="end_time" data-order="desc"></i>
+                                            <i class="fas fa-sort-down sort-down {% if sort_by == 'end_time' and sort_order == 'asc' %}active{% endif %}" data-sort="end_time" data-order="asc"></i>
+                                        </span>
+                                    </th>
+                                    <th>报名人数</th>
+                                    <th>审批状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                <tr>
+                                    <td>{{ start_index|add:forloop.counter }}</td>
+                                    <td>{{ activity.title }}</td>
+                                    <td>{{ activity.organizer.admin.last_name }}{{ activity.organizer.admin.first_name }}</td>
+                                    <td>{{ activity.location }}</td>
+                                    <td>{{ activity.start_time|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ activity.end_time|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% with reg_count=activity.activityregistration_set.count %}
+                                            {% if activity.max_participants > 0 %}
+                                                {{ reg_count }} / {{ activity.max_participants }}
+                                            {% else %}
+                                                {{ reg_count }} (不限)
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% if activity.status == 0 %}
+                                            <span class="badge badge-warning">待审批</span>
+                                        {% elif activity.status == 1 %}
+                                            <span class="badge badge-success">已通过</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">已拒绝</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if activity.status == 0 %}
+                                            <a href="{% url 'admin_approve_activity' activity.id %}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-check"></i> 审批
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'admin_approve_activity' activity.id %}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-eye"></i> 查看
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center">暂无活动</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        
+                        <!-- 分页控件 -->
+                        {% if paginator.num_pages > 1 %}
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination justify-content-center">
+                                        {% if activities.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}&sort_order={{ sort_order }}{% endif %}">首页</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ activities.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}&sort_order={{ sort_order }}{% endif %}">上一页</a>
+                                        </li>
+                                        {% endif %}
+                                        
+                                        <li class="page-item active">
+                                            <span class="page-link">
+                                                第 {{ activities.number }} 页，共 {{ paginator.num_pages }} 页
+                                            </span>
+                                        </li>
+                                        
+                                        {% if activities.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ activities.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}&sort_order={{ sort_order }}{% endif %}">下一页</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}&sort_order={{ sort_order }}{% endif %}">末页</a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .sortable {
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+    }
+    .sort-icons {
+        display: inline-block;
+        margin-left: 5px;
+        vertical-align: middle;
+    }
+    .sort-icons i {
+        display: block;
+        font-size: 12px;
+        line-height: 8px;
+        color: #6c757d;
+        transition: color 0.2s;
+    }
+    .sort-icons i:hover {
+        color: #007bff;
+    }
+    .sort-icons i.active {
+        color: #007bff;
+    }
+    .sort-icons .sort-up {
+        margin-bottom: 2px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 获取所有排序图标
+        const sortIcons = document.querySelectorAll('.sort-icons i');
+        
+        sortIcons.forEach(function(icon) {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const sortBy = this.getAttribute('data-sort');
+                const sortOrder = this.getAttribute('data-order');
+                
+                // 构建URL参数
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('sort_by', sortBy);
+                urlParams.set('sort_order', sortOrder);
+                
+                // 保留搜索和筛选参数
+                const search = urlParams.get('search') || '';
+                const status = urlParams.get('status') || '';
+                
+                // 构建新的URL
+                let newUrl = window.location.pathname + '?';
+                if (search) newUrl += 'search=' + encodeURIComponent(search) + '&';
+                if (status) newUrl += 'status=' + encodeURIComponent(status) + '&';
+                newUrl += 'sort_by=' + sortBy + '&sort_order=' + sortOrder;
+                
+                // 跳转到新URL
+                window.location.href = newUrl;
+            });
+        });
+    });
+</script>
+
+{% endblock content %}
+

@@ -1,0 +1,83 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}} - {{ activity.title }}</h3>
+                        <div class="card-tools">
+                            <a href="{% url 'staff_my_activities' %}" class="btn btn-default btn-sm">
+                                <i class="fas fa-arrow-left"></i> 返回
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <p><strong>活动地点：</strong>{{ activity.location }}</p>
+                            <p><strong>活动时间：</strong>{{ activity.start_time|date:"Y-m-d H:i" }} 至 {{ activity.end_time|date:"Y-m-d H:i" }}</p>
+                        </div>
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>学生姓名</th>
+                                    <th>学生邮箱</th>
+                                    <th>签到状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ student.admin.last_name }}{{ student.admin.first_name }}</td>
+                                    <td>{{ student.admin.email }}</td>
+                                    <td id="status_{{ student.id }}">
+                                        {% if student.attendance %}
+                                            {% if student.attendance.is_present %}
+                                                <span class="badge badge-success">已签到</span>
+                                            {% else %}
+                                                <span class="badge badge-warning">未签到</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge badge-secondary">未签到</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                                            <button type="submit" name="is_present" value="true" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check"></i> 已签到
+                                            </button>
+                                        </form>
+                                        <form method="post" style="display: inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                                            <button type="submit" name="is_present" value="false" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-times"></i> 未签到
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">暂无报名学生</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+

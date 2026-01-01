@@ -19,12 +19,65 @@
                     <!-- /.card-header -->
                     <!-- form start -->
                     <div class="card-body">
+                        <!-- 学期选择 -->
+                        <div class="form-group">
+                            <label for="{{ form.session_year.id_for_label }}">{{ form.session_year.label }}</label>
+                            {{ form.session_year }}
+                            {% if form.session_year.help_text %}
+                                <small class="form-text text-muted">{{ form.session_year.help_text }}</small>
+                            {% endif %}
+                            {% if form.session_year.errors %}
+                                <div class="text-danger">{{ form.session_year.errors }}</div>
+                            {% endif %}
+                        </div>
 
+                        <!-- 科目选择 -->
+                        <div class="form-group">
+                            <label for="{{ form.subject.id_for_label }}">{{ form.subject.label }}</label>
+                            {{ form.subject }}
+                            {% if form.subject.help_text %}
+                                <small class="form-text text-muted">{{ form.subject.help_text }}</small>
+                            {% endif %}
+                            {% if form.subject.errors %}
+                                <div class="text-danger">{{ form.subject.errors }}</div>
+                            {% endif %}
+                        </div>
 
-                     
+                        <!-- 学生选择 -->
+                        <div class="form-group">
+                            <label for="{{ form.student.id_for_label }}">{{ form.student.label }}</label>
+                            {{ form.student }}
+                            {% if form.student.help_text %}
+                                <small class="form-text text-muted">{{ form.student.help_text }}</small>
+                            {% endif %}
+                            {% if form.student.errors %}
+                                <div class="text-danger">{{ form.student.errors }}</div>
+                            {% endif %}
+                        </div>
 
-                 {{ form }}
+                        <!-- 平时成绩 -->
+                        <div class="form-group">
+                            <label for="{{ form.test.id_for_label }}">{{ form.test.label }}</label>
+                            {{ form.test }}
+                            {% if form.test.help_text %}
+                                <small class="form-text text-muted">{{ form.test.help_text }}</small>
+                            {% endif %}
+                            {% if form.test.errors %}
+                                <div class="text-danger">{{ form.test.errors }}</div>
+                            {% endif %}
+                        </div>
 
+                        <!-- 考试成绩 -->
+                        <div class="form-group">
+                            <label for="{{ form.exam.id_for_label }}">{{ form.exam.label }}</label>
+                            {{ form.exam }}
+                            {% if form.exam.help_text %}
+                                <small class="form-text text-muted">{{ form.exam.help_text }}</small>
+                            {% endif %}
+                            {% if form.exam.errors %}
+                                <div class="text-danger">{{ form.exam.errors }}</div>
+                            {% endif %}
+                        </div>
                     </div>
                     <!-- /.card-body -->
 
@@ -55,11 +108,10 @@
    $("#id_student").change(function () {
     fetch_student_result();
                 });
-                $("#id_exam").hide()
-                $("#id_test").hide()
+                // 隐藏成绩输入字段和更新按钮
+                $("#id_exam").closest('.form-group').hide()
+                $("#id_test").closest('.form-group').hide()
                 $("#update_result").hide()
-                $('label[for="id_test"]').hide();
-                $('label[for="id_exam"]').hide();
         function fetchStudents(){
             var subject = $("#id_subject").val()
             var session = $("#id_session_year").val()
@@ -95,13 +147,12 @@
                function fetch_student_result(){
                 var student = $("#id_student").val()
                 var subject = $("#id_subject").val()
+                // 重置并隐藏成绩输入字段和更新按钮
                 $("#id_test").val(null)
                 $("#id_exam").val(null)
-                $("#id_exam").hide()
+                $("#id_exam").closest('.form-group').hide()
                 $("#update_result").hide()
-                $("#id_test").hide()
-                $('label[for="id_test"]').hide();
-                $('label[for="id_exam"]').hide();
+                $("#id_test").closest('.form-group').hide()
                 if (student.length  == 0 || subject.length == 0 || student < 1 || subject < 1){
                     return false;
                 }
@@ -118,13 +169,12 @@
                     } else {
                         var json_data = JSON.parse(response)
                         
+                            // 显示并填充成绩字段
                             $("#id_test").val(json_data['test'])
                             $("#id_exam").val(json_data['exam'])
-                            $("#id_exam").show()
-                            $("#id_test").show()
+                            $("#id_exam").closest('.form-group').show()
+                            $("#id_test").closest('.form-group').show()
                             $("#update_result").show()
-                            $('label[for="id_test"]').show();
-                            $('label[for="id_exam"]').show();
 
                     }
                 }).fail(function (response) {

@@ -8,7 +8,6 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <!-- general form elements -->
                 <div class="card card-primary">
                     <div class="card-header">
                         <h3 class="card-title">{{page_title}}</h3>
@@ -16,22 +15,14 @@
                     <div class="card-body">
                         <div class="alert alert-info">
                             <h5><i class="icon fas fa-info"></i> 说明</h5>
-                            <p><strong>专业</strong>是指学生的专业方向或学科类别，例如：</p>
-                            <ul>
-                                <li>计算机科学</li>
-                                <li>数学</li>
-                                <li>英语文学</li>
-                                <li>物理</li>
-                            </ul>
-                            <p class="mb-0">学生和教师都属于某个专业。一个专业下可以有多个科目。</p>
+                            <p>填写活动信息后，需要等待管理员审批。审批通过后，学生才能报名参加活动。</p>
                         </div>
+                        {% include "main_app/form_template.html" with messages=messages form=form button_text="提交活动"%}
                     </div>
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="添加专业"%}
                 </div>
-                <!-- /.card -->
-
             </div>
         </div>
     </div>
 </section>
 {% endblock content %}
+

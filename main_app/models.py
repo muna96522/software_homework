@@ -48,7 +48,7 @@ class CustomUser(AbstractUser):
     user_type = models.CharField(default=1, choices=USER_TYPE, max_length=1)
     gender = models.CharField(max_length=1, choices=GENDER)
     profile_pic = models.ImageField()
-    address = models.TextField()
+    phone_number = models.CharField(max_length=20, blank=True, null=True, verbose_name='联系电话')
     fcm_token = models.TextField(default="")  # For firebase notifications
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -84,7 +84,7 @@ class Student(models.Model):
 
 
 class Staff(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, null=True, blank=False)
+    # 移除course字段，允许教师跨专业授课
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -173,6 +173,93 @@ class StudentResult(models.Model):
     exam = models.FloatField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+# 校园活动管理模块
+class Activity(models.Model):
+    STATUS_CHOICES = [
+        (0, '待审批'),
+        (1, '已通过'),
+        (2, '已拒绝'),
+    ]
+    
+    title = models.CharField(max_length=200, verbose_name='活动标题')
+    description = models.TextField(verbose_name='活动描述')
+    organizer = models.ForeignKey(Staff, on_delete=models.CASCADE, verbose_name='发起教师')
+    location = models.CharField(max_length=200, verbose_name='活动地点')
+    start_time = models.DateTimeField(verbose_name='开始时间')
+    end_time = models.DateTimeField(verbose_name='结束时间')
+    max_participants = models.IntegerField(default=0, verbose_name='最大参与人数', help_text='0表示不限制')
+    status = models.SmallIntegerField(default=0, choices=STATUS_CHOICES, verbose_name='审批状态')
+    admin_reply = models.TextField(blank=True, null=True, verbose_name='管理员回复')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
+    
+    class Meta:
+        verbose_name = '校园活动'
+        verbose_name_plural = '校园活动'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.title
+
+
+class ActivityRegistration(models.Model):
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, verbose_name='活动')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name='学生')
+    registered_at = models.DateTimeField(auto_now_add=True, verbose_name='报名时间')
+    
+    class Meta:
+        verbose_name = '活动报名'
+        verbose_name_plural = '活动报名'
+        unique_together = ['activity', 'student']  # 每个学生只能报名一次
+        ordering = ['-registered_at']
+    
+    def __str__(self):
+        return f"{self.student} - {self.activity.title}"
+
+
+class ActivityAttendance(models.Model):
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, verbose_name='活动')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name='学生')
+    is_present = models.BooleanField(default=False, verbose_name='是否出席')
+    checked_by = models.ForeignKey(Staff, on_delete=models.CASCADE, verbose_name='签到确认人')
+    checked_at = models.DateTimeField(auto_now_add=True, verbose_name='签到时间')
+    
+    class Meta:
+        verbose_name = '活动签到'
+        verbose_name_plural = '活动签到'
+        unique_together = ['activity', 'student']  # 每个学生只能签到一次
+        ordering = ['-checked_at']
+    
+    def __str__(self):
+        status = '已签到' if self.is_present else '未签到'
+        return f"{self.student} - {self.activity.title} - {status}"
+
+
+class ActivityFeedback(models.Model):
+    RATING_CHOICES = [
+        (1, '1星'),
+        (2, '2星'),
+        (3, '3星'),
+        (4, '4星'),
+        (5, '5星'),
+    ]
+    
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, verbose_name='活动')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name='学生')
+    rating = models.IntegerField(choices=RATING_CHOICES, verbose_name='评分')
+    comment = models.TextField(verbose_name='评价内容')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='评价时间')
+    
+    class Meta:
+        verbose_name = '活动评价'
+        verbose_name_plural = '活动评价'
+        unique_together = ['activity', 'student']  # 每个学生只能评价一次
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.student} - {self.activity.title} - {self.rating}星"
 
 
 @receiver(post_save, sender=CustomUser)

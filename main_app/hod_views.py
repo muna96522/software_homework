@@ -12,6 +12,8 @@ from django.views.generic import UpdateView
 
 from .forms import *
 from .models import *
+from .utils import paginate_queryset, search_students, search_staff, search_activities
+from django.core.paginator import Paginator
 
 
 def admin_home(request):
@@ -43,16 +45,15 @@ def admin_home(request):
 
 def add_staff(request):
     form = StaffForm(request.POST or None, request.FILES or None)
-    context = {'form': form, 'page_title': 'Add Staff'}
+    context = {'form': form, 'page_title': '添加教师'}
     if request.method == 'POST':
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
-            address = form.cleaned_data.get('address')
+            phone_number = form.cleaned_data.get('phone_number')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
             password = form.cleaned_data.get('password')
-            course = form.cleaned_data.get('course')
             passport = request.FILES.get('profile_pic')
             fs = FileSystemStorage()
             filename = fs.save(passport.name, passport)
@@ -61,28 +62,27 @@ def add_staff(request):
                 user = CustomUser.objects.create_user(
                     email=email, password=password, user_type=2, first_name=first_name, last_name=last_name, profile_pic=passport_url)
                 user.gender = gender
-                user.address = address
-                user.staff.course = course
+                user.phone_number = phone_number
                 user.save()
-                messages.success(request, "Successfully Added")
+                messages.success(request, "添加成功")
                 return redirect(reverse('add_staff'))
 
             except Exception as e:
-                messages.error(request, "Could Not Add " + str(e))
+                messages.error(request, "添加失败：" + str(e))
         else:
-            messages.error(request, "Please fulfil all requirements")
+            messages.error(request, "请填写所有必填项")
 
     return render(request, 'hod_template/add_staff_template.html', context)
 
 
 def add_student(request):
     student_form = StudentForm(request.POST or None, request.FILES or None)
-    context = {'form': student_form, 'page_title': 'Add Student'}
+    context = {'form': student_form, 'page_title': '添加学生'}
     if request.method == 'POST':
         if student_form.is_valid():
             first_name = student_form.cleaned_data.get('first_name')
             last_name = student_form.cleaned_data.get('last_name')
-            address = student_form.cleaned_data.get('address')
+            phone_number = student_form.cleaned_data.get('phone_number')
             email = student_form.cleaned_data.get('email')
             gender = student_form.cleaned_data.get('gender')
             password = student_form.cleaned_data.get('password')
@@ -96,11 +96,11 @@ def add_student(request):
                 user = CustomUser.objects.create_user(
                     email=email, password=password, user_type=3, first_name=first_name, last_name=last_name, profile_pic=passport_url)
                 user.gender = gender
-                user.address = address
+                user.phone_number = phone_number
                 user.student.session = session
                 user.student.course = course
                 user.save()
-                messages.success(request, "Successfully Added")
+                messages.success(request, "添加成功")
                 return redirect(reverse('add_student'))
             except Exception as e:
                 messages.error(request, "Could Not Add: " + str(e))
@@ -113,7 +113,7 @@ def add_course(request):
     form = CourseForm(request.POST or None)
     context = {
         'form': form,
-        'page_title': 'Add Course'
+        'page_title': '添加专业'
     }
     if request.method == 'POST':
         if form.is_valid():
@@ -122,10 +122,10 @@ def add_course(request):
                 course = Course()
                 course.name = name
                 course.save()
-                messages.success(request, "Successfully Added")
+                messages.success(request, "添加成功")
                 return redirect(reverse('add_course'))
             except:
-                messages.error(request, "Could Not Add")
+                messages.error(request, "添加失败")
         else:
             messages.error(request, "Could Not Add")
     return render(request, 'hod_template/add_course_template.html', context)
@@ -135,7 +135,7 @@ def add_subject(request):
     form = SubjectForm(request.POST or None)
     context = {
         'form': form,
-        'page_title': 'Add Subject'
+        'page_title': '添加科目'
     }
     if request.method == 'POST':
         if form.is_valid():
@@ -148,11 +148,11 @@ def add_subject(request):
                 subject.staff = staff
                 subject.course = course
                 subject.save()
-                messages.success(request, "Successfully Added")
+                messages.success(request, "添加成功")
                 return redirect(reverse('add_subject'))
 
             except Exception as e:
-                messages.error(request, "Could Not Add " + str(e))
+                messages.error(request, "添加失败：" + str(e))
         else:
             messages.error(request, "Fill Form Properly")
 
@@ -160,19 +160,49 @@ def add_subject(request):
 
 
 def manage_staff(request):
-    allStaff = CustomUser.objects.filter(user_type=2)
+    # 使用select_related优化查询，避免N+1问题
+    allStaff = CustomUser.objects.filter(user_type=2).select_related('staff')
+    
+    # 搜索功能
+    search_query = request.GET.get('search', '').strip()
+    allStaff = search_staff(allStaff, search_query)
+    
+    # 分页功能
+    page_obj, paginator = paginate_queryset(request, allStaff, per_page=10)
+    
+    # 计算起始索引（用于序号显示）
+    start_index = (page_obj.number - 1) * paginator.per_page
+    
     context = {
-        'allStaff': allStaff,
-        'page_title': 'Manage Staff'
+        'allStaff': page_obj,
+        'page_title': '教师管理',
+        'search_query': search_query,
+        'paginator': paginator,
+        'start_index': start_index
     }
     return render(request, "hod_template/manage_staff.html", context)
 
 
 def manage_student(request):
-    students = CustomUser.objects.filter(user_type=3)
+    # 使用select_related优化查询，避免N+1问题
+    students = CustomUser.objects.filter(user_type=3).select_related('student', 'student__course', 'student__session')
+    
+    # 搜索功能
+    search_query = request.GET.get('search', '').strip()
+    students = search_students(students, search_query)
+    
+    # 分页功能
+    page_obj, paginator = paginate_queryset(request, students, per_page=10)
+    
+    # 计算起始索引（用于序号显示）
+    start_index = (page_obj.number - 1) * paginator.per_page
+    
     context = {
-        'students': students,
-        'page_title': 'Manage Students'
+        'students': page_obj,
+        'page_title': '学生管理',
+        'search_query': search_query,
+        'paginator': paginator,
+        'start_index': start_index
     }
     return render(request, "hod_template/manage_student.html", context)
 
@@ -181,42 +211,40 @@ def manage_course(request):
     courses = Course.objects.all()
     context = {
         'courses': courses,
-        'page_title': 'Manage Courses'
+        'page_title': '专业管理'
     }
     return render(request, "hod_template/manage_course.html", context)
 
 
 def manage_subject(request):
-    subjects = Subject.objects.all()
+    # 使用select_related和prefetch_related优化查询
+    subjects = Subject.objects.all().select_related('staff', 'staff__admin', 'course')
     context = {
         'subjects': subjects,
-        'page_title': 'Manage Subjects'
+        'page_title': '科目管理'
     }
     return render(request, "hod_template/manage_subject.html", context)
 
 
 def edit_staff(request, staff_id):
     staff = get_object_or_404(Staff, id=staff_id)
-    form = StaffForm(request.POST or None, instance=staff)
+    form = StaffForm(request.POST or None, request.FILES or None, instance=staff)
     context = {
         'form': form,
         'staff_id': staff_id,
-        'page_title': 'Edit Staff'
+        'page_title': '编辑教师'
     }
     if request.method == 'POST':
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
-            address = form.cleaned_data.get('address')
-            username = form.cleaned_data.get('username')
+            phone_number = form.cleaned_data.get('phone_number')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
             password = form.cleaned_data.get('password') or None
-            course = form.cleaned_data.get('course')
             passport = request.FILES.get('profile_pic') or None
             try:
-                user = CustomUser.objects.get(id=staff.admin.id)
-                user.username = username
+                user = staff.admin  # 使用 staff.admin 直接获取关联的 CustomUser
                 user.email = email
                 if password != None:
                     user.set_password(password)
@@ -228,36 +256,32 @@ def edit_staff(request, staff_id):
                 user.first_name = first_name
                 user.last_name = last_name
                 user.gender = gender
-                user.address = address
-                staff.course = course
+                user.phone_number = phone_number
                 user.save()
                 staff.save()
-                messages.success(request, "Successfully Updated")
+                messages.success(request, "更新成功")
                 return redirect(reverse('edit_staff', args=[staff_id]))
             except Exception as e:
-                messages.error(request, "Could Not Update " + str(e))
+                messages.error(request, "更新失败：" + str(e))
         else:
-            messages.error(request, "Please fil form properly")
-    else:
-        user = CustomUser.objects.get(id=staff_id)
-        staff = Staff.objects.get(id=user.id)
-        return render(request, "hod_template/edit_staff_template.html", context)
+            messages.error(request, "请正确填写表单")
+    
+    return render(request, "hod_template/edit_staff_template.html", context)
 
 
 def edit_student(request, student_id):
     student = get_object_or_404(Student, id=student_id)
-    form = StudentForm(request.POST or None, instance=student)
+    form = StudentForm(request.POST or None, request.FILES or None, instance=student)
     context = {
         'form': form,
         'student_id': student_id,
-        'page_title': 'Edit Student'
+        'page_title': '编辑学生'
     }
     if request.method == 'POST':
         if form.is_valid():
             first_name = form.cleaned_data.get('first_name')
             last_name = form.cleaned_data.get('last_name')
-            address = form.cleaned_data.get('address')
-            username = form.cleaned_data.get('username')
+            phone_number = form.cleaned_data.get('phone_number')
             email = form.cleaned_data.get('email')
             gender = form.cleaned_data.get('gender')
             password = form.cleaned_data.get('password') or None
@@ -265,32 +289,31 @@ def edit_student(request, student_id):
             session = form.cleaned_data.get('session')
             passport = request.FILES.get('profile_pic') or None
             try:
-                user = CustomUser.objects.get(id=student.admin.id)
+                user = student.admin  # 使用 student.admin 直接获取关联的 CustomUser
+                user.email = email
+                if password != None:
+                    user.set_password(password)
                 if passport != None:
                     fs = FileSystemStorage()
                     filename = fs.save(passport.name, passport)
                     passport_url = fs.url(filename)
                     user.profile_pic = passport_url
-                user.username = username
-                user.email = email
-                if password != None:
-                    user.set_password(password)
                 user.first_name = first_name
                 user.last_name = last_name
-                student.session = session
                 user.gender = gender
-                user.address = address
+                user.phone_number = phone_number
                 student.course = course
+                student.session = session
                 user.save()
                 student.save()
-                messages.success(request, "Successfully Updated")
+                messages.success(request, "更新成功")
                 return redirect(reverse('edit_student', args=[student_id]))
             except Exception as e:
-                messages.error(request, "Could Not Update " + str(e))
+                messages.error(request, "更新失败：" + str(e))
         else:
-            messages.error(request, "Please Fill Form Properly!")
-    else:
-        return render(request, "hod_template/edit_student_template.html", context)
+            messages.error(request, "请正确填写表单！")
+    
+    return render(request, "hod_template/edit_student_template.html", context)
 
 
 def edit_course(request, course_id):
@@ -299,7 +322,7 @@ def edit_course(request, course_id):
     context = {
         'form': form,
         'course_id': course_id,
-        'page_title': 'Edit Course'
+        'page_title': '编辑专业'
     }
     if request.method == 'POST':
         if form.is_valid():
@@ -308,9 +331,9 @@ def edit_course(request, course_id):
                 course = Course.objects.get(id=course_id)
                 course.name = name
                 course.save()
-                messages.success(request, "Successfully Updated")
+                messages.success(request, "更新成功")
             except:
-                messages.error(request, "Could Not Update")
+                messages.error(request, "更新失败")
         else:
             messages.error(request, "Could Not Update")
 
@@ -323,7 +346,7 @@ def edit_subject(request, subject_id):
     context = {
         'form': form,
         'subject_id': subject_id,
-        'page_title': 'Edit Subject'
+        'page_title': '编辑科目'
     }
     if request.method == 'POST':
         if form.is_valid():
@@ -336,10 +359,10 @@ def edit_subject(request, subject_id):
                 subject.staff = staff
                 subject.course = course
                 subject.save()
-                messages.success(request, "Successfully Updated")
+                messages.success(request, "更新成功")
                 return redirect(reverse('edit_subject', args=[subject_id]))
             except Exception as e:
-                messages.error(request, "Could Not Add " + str(e))
+                messages.error(request, "添加失败：" + str(e))
         else:
             messages.error(request, "Fill Form Properly")
     return render(request, 'hod_template/edit_subject_template.html', context)
@@ -347,7 +370,7 @@ def edit_subject(request, subject_id):
 
 def add_session(request):
     form = SessionForm(request.POST or None)
-    context = {'form': form, 'page_title': 'Add Session'}
+    context = {'form': form, 'page_title': '添加学期'}
     if request.method == 'POST':
         if form.is_valid():
             try:
@@ -363,7 +386,7 @@ def add_session(request):
 
 def manage_session(request):
     sessions = Session.objects.all()
-    context = {'sessions': sessions, 'page_title': 'Manage Sessions'}
+    context = {'sessions': sessions, 'page_title': '学期管理'}
     return render(request, "hod_template/manage_session.html", context)
 
 
@@ -371,7 +394,7 @@ def edit_session(request, session_id):
     instance = get_object_or_404(Session, id=session_id)
     form = SessionForm(request.POST or None, instance=instance)
     context = {'form': form, 'session_id': session_id,
-               'page_title': 'Edit Session'}
+               'page_title': '编辑学期'}
     if request.method == 'POST':
         if form.is_valid():
             try:
@@ -447,7 +470,7 @@ def staff_feedback_message(request):
 @csrf_exempt
 def view_staff_leave(request):
     if request.method != 'POST':
-        allLeave = LeaveReportStaff.objects.all()
+        allLeave = LeaveReportStaff.objects.all().order_by('-created_at')
         context = {
             'allLeave': allLeave,
             'page_title': 'Leave Applications From Staff'
@@ -472,7 +495,7 @@ def view_staff_leave(request):
 @csrf_exempt
 def view_student_leave(request):
     if request.method != 'POST':
-        allLeave = LeaveReportStudent.objects.all()
+        allLeave = LeaveReportStudent.objects.all().order_by('-created_at')
         context = {
             'allLeave': allLeave,
             'page_title': 'Leave Applications From Students'
@@ -535,7 +558,7 @@ def admin_view_profile(request):
     form = AdminForm(request.POST or None, request.FILES or None,
                      instance=admin)
     context = {'form': form,
-               'page_title': 'View/Edit Profile'
+               'page_title': '查看/编辑个人资料'
                }
     if request.method == 'POST':
         try:
@@ -638,16 +661,57 @@ def send_staff_notification(request):
 
 
 def delete_staff(request, staff_id):
-    staff = get_object_or_404(CustomUser, staff__id=staff_id)
-    staff.delete()
-    messages.success(request, "Staff deleted successfully!")
+    """删除教师，先处理相关记录"""
+    try:
+        staff_user = get_object_or_404(CustomUser, staff__id=staff_id)
+        staff = staff_user.staff
+        
+        # 检查是否有相关的科目
+        subjects_count = Subject.objects.filter(staff=staff).count()
+        if subjects_count > 0:
+            messages.error(
+                request, 
+                f"无法删除该教师！该教师正在教授 {subjects_count} 门课程。请先重新分配这些课程给其他教师，然后再删除。"
+            )
+            return redirect(reverse('manage_staff'))
+        
+        # 检查是否有相关的活动
+        activities_count = Activity.objects.filter(organizer=staff).count()
+        if activities_count > 0:
+            messages.error(
+                request,
+                f"无法删除该教师！该教师发起了 {activities_count} 个活动。请先处理这些活动，然后再删除。"
+            )
+            return redirect(reverse('manage_staff'))
+        
+        # 删除教师（CASCADE 会自动删除：LeaveReportStaff, FeedbackStaff, NotificationStaff）
+        staff_user.delete()
+        messages.success(request, "教师删除成功！")
+        
+    except Exception as e:
+        messages.error(request, f"删除教师时发生错误：{str(e)}")
+    
     return redirect(reverse('manage_staff'))
 
 
 def delete_student(request, student_id):
-    student = get_object_or_404(CustomUser, student__id=student_id)
-    student.delete()
-    messages.success(request, "Student deleted successfully!")
+    """删除学生，先处理相关记录"""
+    try:
+        student_user = get_object_or_404(CustomUser, student__id=student_id)
+        student = student_user.student
+        
+        # 先删除出勤报告（因为使用 DO_NOTHING，需要手动删除）
+        AttendanceReport.objects.filter(student=student).delete()
+        
+        # 删除学生（CASCADE 会自动删除：LeaveReportStudent, FeedbackStudent, 
+        # NotificationStudent, StudentResult, ActivityRegistration, 
+        # ActivityAttendance, ActivityFeedback）
+        student_user.delete()
+        messages.success(request, "学生删除成功！")
+        
+    except Exception as e:
+        messages.error(request, f"删除学生时发生错误：{str(e)}")
+    
     return redirect(reverse('manage_student'))
 
 
@@ -655,10 +719,10 @@ def delete_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     try:
         course.delete()
-        messages.success(request, "Course deleted successfully!")
+        messages.success(request, "专业删除成功！")
     except Exception:
         messages.error(
-            request, "Sorry, some students are assigned to this course already. Kindly change the affected student course and try again")
+            request, "抱歉，有些学生已分配到此专业。请先更改受影响学生的专业，然后重试。")
     return redirect(reverse('manage_course'))
 
 
@@ -678,3 +742,73 @@ def delete_session(request, session_id):
         messages.error(
             request, "There are students assigned to this session. Please move them to another session.")
     return redirect(reverse('manage_session'))
+
+
+# 校园活动管理 - 管理员审批
+def admin_manage_activities(request):
+    """管理员查看待审批的活动列表"""
+    # 使用select_related优化查询，避免N+1问题
+    activities = Activity.objects.all().select_related('organizer', 'organizer__admin').prefetch_related('activityregistration_set')
+    
+    # 排序功能：支持按开始时间和结束时间排序
+    sort_by = request.GET.get('sort_by', '')  # 'start_time' 或 'end_time'
+    sort_order = request.GET.get('sort_order', 'desc')  # 'asc' 或 'desc'
+    
+    if sort_by == 'start_time':
+        if sort_order == 'asc':
+            activities = activities.order_by('start_time')
+        else:
+            activities = activities.order_by('-start_time')
+    elif sort_by == 'end_time':
+        if sort_order == 'asc':
+            activities = activities.order_by('end_time')
+        else:
+            activities = activities.order_by('-end_time')
+    else:
+        # 默认按创建时间倒序
+        activities = activities.order_by('-created_at')
+    
+    # 搜索和筛选功能
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    activities = search_activities(activities, search_query, status_filter)
+    
+    # 分页功能
+    page_obj, paginator = paginate_queryset(request, activities, per_page=10)
+    
+    # 计算起始索引（用于序号显示）
+    start_index = (page_obj.number - 1) * paginator.per_page
+    
+    context = {
+        'page_title': '活动审批管理',
+        'activities': page_obj,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
+        'paginator': paginator,
+        'start_index': start_index
+    }
+    return render(request, 'hod_template/manage_activities.html', context)
+
+
+def admin_approve_activity(request, activity_id):
+    """管理员审批活动"""
+    activity = get_object_or_404(Activity, id=activity_id)
+    form = ActivityApprovalForm(request.POST or None, instance=activity)
+    context = {
+        'page_title': '审批活动',
+        'activity': activity,
+        'form': form
+    }
+    
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            status_text = '已通过' if activity.status == 1 else '已拒绝'
+            messages.success(request, f"活动审批完成：{status_text}")
+            return redirect(reverse('admin_manage_activities'))
+        else:
+            messages.error(request, "表单验证失败，请检查输入")
+    
+    return render(request, 'hod_template/approve_activity.html', context)

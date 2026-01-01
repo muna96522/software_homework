@@ -24,7 +24,11 @@ urlpatterns = [
     path("get_attendance", views.get_attendance, name='get_attendance'),
     path("firebase-messaging-sw.js", views.showFirebaseJS, name='showFirebaseJS'),
     path("doLogin/", views.doLogin, name='user_login'),
+    path("do-admin-login/", views.do_admin_login, name='admin_login'),
+    path("do-teacher-login/", views.do_teacher_login, name='teacher_login'),
+    path("do-student-login/", views.do_student_login, name='student_login'),
     path("logout_user/", views.logout_user, name='user_logout'),
+    path("logout-role/<str:role>/", views.logout_role, name='logout_role'),
     path("admin/home/", hod_views.admin_home, name='admin_home'),
     path("staff/add", hod_views.add_staff, name='add_staff'),
     path("course/add", hod_views.add_course, name='add_course'),
@@ -83,6 +87,11 @@ urlpatterns = [
     path("subject/edit/<int:subject_id>",
          hod_views.edit_subject, name='edit_subject'),
 
+    # 校园活动管理 - 管理员
+    path("admin/activities/manage/", hod_views.admin_manage_activities,
+         name='admin_manage_activities'),
+    path("admin/activities/approve/<int:activity_id>/", hod_views.admin_approve_activity,
+         name='admin_approve_activity'),
 
     # Staff
     path("staff/home/", staff_views.staff_home, name='staff_home'),
@@ -111,7 +120,15 @@ urlpatterns = [
     path('staff/result/fetch/', staff_views.fetch_student_result,
          name='fetch_student_result'),
 
-
+    # 校园活动管理 - 教师
+    path("staff/activity/create/", staff_views.staff_create_activity,
+         name='staff_create_activity'),
+    path("staff/activity/my/", staff_views.staff_my_activities,
+         name='staff_my_activities'),
+    path("staff/activity/<int:activity_id>/registrations/", staff_views.staff_view_registrations,
+         name='staff_view_registrations'),
+    path("staff/activity/<int:activity_id>/attendance/", staff_views.staff_check_attendance,
+         name='staff_check_attendance'),
 
     # Student
     path("student/home/", student_views.student_home, name='student_home'),
@@ -129,5 +146,15 @@ urlpatterns = [
          name="student_view_notification"),
     path('student/view/result/', student_views.student_view_result,
          name='student_view_result'),
+
+    # 校园活动管理 - 学生
+    path("student/activities/view/", student_views.student_view_activities,
+         name='student_view_activities'),
+    path("student/activities/register/<int:activity_id>/", student_views.student_register_activity,
+         name='student_register_activity'),
+    path("student/activities/my/", student_views.student_my_activities,
+         name='student_my_activities'),
+    path("student/activities/<int:activity_id>/feedback/", student_views.student_feedback_activity,
+         name='student_feedback_activity'),
 
 ]

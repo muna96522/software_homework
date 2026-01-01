@@ -729,11 +729,11 @@
             next: "次",
             today: "今日",
             month: "月",
-            week: "週",
+            week: "周",
             day: "日",
             list: "予定リスト"
         },
-        weekLabel: "週",
+        weekLabel: "周",
         allDayText: "終日",
         eventLimitText: function (n) {
             return "他 " + n + " 件";
@@ -1329,13 +1329,13 @@
             next: "下月",
             today: "今天",
             month: "月",
-            week: "週",
+            week: "周",
             day: "天",
             list: "活動列表"
         },
         weekLabel: "周",
         allDayText: "整天",
-        eventLimitText: '顯示更多',
+        eventLimitText: '显示更多',
         noEventsMessage: "没有任何活動"
     };
 

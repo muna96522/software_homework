@@ -13,8 +13,20 @@
                     <div class="card-header">
                         <h3 class="card-title">{{page_title}}</h3>
                     </div>
-
-                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="Add Subject"%}
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h5><i class="icon fas fa-info"></i> 说明</h5>
+                            <p><strong>科目</strong>是指具体的教学科目，属于某个专业，由特定教师授课，例如：</p>
+                            <ul>
+                                <li>高等数学（属于"数学"专业）</li>
+                                <li>数据结构（属于"计算机科学"专业）</li>
+                                <li>英语写作（属于"英语文学"专业）</li>
+                                <li>线性代数（属于"数学"专业）</li>
+                            </ul>
+                            <p class="mb-0"><strong>关系：</strong>一个专业下可以有多个科目，每个科目由一位教师授课。</p>
+                        </div>
+                    </div>
+                    {% include "main_app/form_template.html" with messages=messages  form=form button_text="添加科目"%}
                 </div>
                 <!-- /.card -->
 

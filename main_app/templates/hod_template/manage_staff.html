@@ -11,46 +11,112 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">{{page_title}}</h3>
+                        <div class="card-tools">
+                            <a href="{% url 'add_staff' %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> 添加新教师
+                            </a>
+                        </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
+                        <!-- 搜索框 -->
+                        <form method="get" class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <input type="text" name="search" class="form-control" placeholder="搜索教师（姓名、邮箱）" value="{{ search_query }}">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="submit">
+                                                <i class="fas fa-search"></i> 搜索
+                                            </button>
+                                            {% if search_query %}
+                                            <a href="{% url 'manage_staff' %}" class="btn btn-secondary">
+                                                <i class="fas fa-times"></i> 清除
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        
                         <table id="example2" class="table table-bordered table-hover">
                             <thead>
                                 <tr>
-                                    <th>SN</th>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Gender</th>
-                                    <th>Course</th>
-                                    <th>Avatar</th>
-                                    <th>Edit</th>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>邮箱</th>
+                                    <th>性别</th>
+                                    <th>头像</th>
+                                    <th>操作</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for staff in allStaff %}
                                 <tr>
-                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ start_index|add:forloop.counter }}</td>
                                     <td>{{staff.last_name}}, {{staff.first_name}}</td>
                                     <td>{{staff.email}}</td>
                                     <td>{{staff.gender}}</td>
-                                    <td>{{staff.staff.course.name}}</td>
                                     <td>
                                         {% if staff.profile_pic == ""  %}
-                                        No Image
+                                        无图片
                                         {% else %}
                                         <img class="img img-fluid mb-2" height="100" width="100"
                                             src="{{staff.profile_pic}}" alt="">
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{% url 'edit_staff' staff.staff.id %}" class="btn btn-primary">Edit</a> - 
-                                        <a href="{% url 'delete_staff' staff.staff.id %}" class="btn btn-danger" onclick="return confirm('Are you sure about this ?')">Delete</a>
-                                    
+                                        <a href="{% url 'edit_staff' staff.staff.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </a>
+                                        <a href="{% url 'delete_staff' staff.staff.id %}" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除此教师吗？')">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </a>
                                     </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">暂无数据</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
+                        
+                        <!-- 分页控件 -->
+                        {% if paginator.num_pages > 1 %}
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination justify-content-center">
+                                        {% if allStaff.has_previous %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">首页</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ allStaff.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">上一页</a>
+                                        </li>
+                                        {% endif %}
+                                        
+                                        <li class="page-item active">
+                                            <span class="page-link">
+                                                第 {{ allStaff.number }} 页，共 {{ paginator.num_pages }} 页
+                                            </span>
+                                        </li>
+                                        
+                                        {% if allStaff.has_next %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ allStaff.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">下一页</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">末页</a>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

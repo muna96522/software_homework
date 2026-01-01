@@ -4,6 +4,15 @@
 {% block content %}
 <section class="content">
     <div class="container-fluid">
+        <!-- 教师标识 -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading"><i class="fas fa-chalkboard-teacher"></i> 教师工作面板</h4>
+                    <p>欢迎，教师！您可以在这里管理学生的出勤、成绩，查看通知和申请请假。</p>
+                </div>
+            </div>
+        </div>
         <!-- Small boxes (Stat box) -->
         <div class="row">
             <div class="col-lg-3 col-6">
@@ -12,7 +21,7 @@
                     <div class="inner">
                         <h3>{{total_students}}</h3>
 
-                        <p>Total Students</p>
+                        <p>学生总数</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-bag"></i>
@@ -27,7 +36,7 @@
                     <div class="inner">
                         <h3>{{total_attendance}}</h3>
 
-                        <p>Total Attendance Taken</p>
+                        <p>已记录出勤</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-stats-bars"></i>
@@ -42,7 +51,7 @@
                     <div class="inner">
                         <h3>{{total_leave}}</h3>
 
-                        <p>Total Leave Applied</p>
+                        <p>请假申请数</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-person-add"></i>
@@ -57,7 +66,7 @@
                     <div class="inner">
                         <h3>{{total_subject}}</h3>
 
-                        <p>Total Subjects</p>
+                        <p>授课科目数</p>
                     </div>
                     <div class="icon">
                         <i class="ion ion-pie-graph"></i>
@@ -74,7 +83,7 @@
                 <!-- LINE CHART -->
                 <div class="card card-secondary">
                   <div class="card-header">
-                    <h3 class="card-title">{{page_title}}</h3>
+                    <h3 class="card-title"><i class="fas fa-chart-pie"></i> 出勤与请假统计</h3>
     
                     <div class="card-tools">
                       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -92,7 +101,7 @@
                 <div class="col-md-6">
                     <div class="card card-secondary">
               <div class="card-header">
-                <h3 class="card-title">{{page_title}}</h3>
+                <h3 class="card-title"><i class="fas fa-chart-bar"></i> 科目出勤统计</h3>
 
                 <div class="card-tools">
                   <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -119,7 +128,7 @@
   <script>
       $(document).ready(function(){
         var donutData        = {
-            labels: ['Attendance', 'Leave'],
+            labels: ['出勤', '请假'],
             datasets: [
               {
                 data:[{{total_attendance}}, {{total_leave}}],
@@ -148,7 +157,7 @@
       labels  : subject_list,
       datasets: [
       {
-        label               : 'Attendance Per Subject',
+        label               : '每科目出勤情况',
         backgroundColor     : '#6c757d',
         borderColor         : 'rgba(60,141,188,0.8)',
         pointRadius          : false,

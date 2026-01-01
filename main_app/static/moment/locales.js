@@ -4710,7 +4710,7 @@
             nextDay : '[明日] LT',
             nextWeek : function (now) {
                 if (now.week() < this.week()) {
-                    return '[来週]dddd LT';
+                    return '[来周]dddd LT';
                 } else {
                     return 'dddd LT';
                 }
@@ -4718,7 +4718,7 @@
             lastDay : '[昨日] LT',
             lastWeek : function (now) {
                 if (this.week() < now.week()) {
-                    return '[先週]dddd LT';
+                    return '[先周]dddd LT';
                 } else {
                     return 'dddd LT';
                 }
@@ -4743,8 +4743,8 @@
             ss : '%d秒',
             m : '1分',
             mm : '%d分',
-            h : '1時間',
-            hh : '%d時間',
+            h : '1时间',
+            hh : '%d时间',
             d : '1日',
             dd : '%d日',
             M : '1ヶ月',
@@ -9995,7 +9995,7 @@
         months : '一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),
         monthsShort : '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),
         weekdays : '星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),
-        weekdaysShort : '週日_週一_週二_週三_週四_週五_週六'.split('_'),
+        weekdaysShort : '周日_周一_周二_周三_周四_周五_周六'.split('_'),
         weekdaysMin : '日_一_二_三_四_五_六'.split('_'),
         longDateFormat : {
             LT : 'HH:mm',
@@ -10046,7 +10046,7 @@
             lastWeek : '[上]ddddLT',
             sameElse : 'L'
         },
-        dayOfMonthOrdinalParse: /\d{1,2}(日|月|週)/,
+        dayOfMonthOrdinalParse: /\d{1,2}(日|月|周)/,
         ordinal : function (number, period) {
             switch (period) {
                 case 'd' :
@@ -10057,7 +10057,7 @@
                     return number + '月';
                 case 'w' :
                 case 'W' :
-                    return number + '週';
+                    return number + '周';
                 default :
                     return number;
             }
@@ -10086,7 +10086,7 @@
         months : '一月_二月_三月_四月_五月_六月_七月_八月_九月_十月_十一月_十二月'.split('_'),
         monthsShort : '1月_2月_3月_4月_5月_6月_7月_8月_9月_10月_11月_12月'.split('_'),
         weekdays : '星期日_星期一_星期二_星期三_星期四_星期五_星期六'.split('_'),
-        weekdaysShort : '週日_週一_週二_週三_週四_週五_週六'.split('_'),
+        weekdaysShort : '周日_周一_周二_周三_周四_周五_周六'.split('_'),
         weekdaysMin : '日_一_二_三_四_五_六'.split('_'),
         longDateFormat : {
             LT : 'HH:mm',
@@ -10137,7 +10137,7 @@
             lastWeek : '[上]dddd LT',
             sameElse : 'L'
         },
-        dayOfMonthOrdinalParse: /\d{1,2}(日|月|週)/,
+        dayOfMonthOrdinalParse: /\d{1,2}(日|月|周)/,
         ordinal : function (number, period) {
             switch (period) {
                 case 'd' :
@@ -10148,7 +10148,7 @@
                     return number + '月';
                 case 'w' :
                 case 'W' :
-                    return number + '週';
+                    return number + '周';
                 default :
                     return number;
             }

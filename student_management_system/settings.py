@@ -59,8 +59,9 @@ MIDDLEWARE = [
     # Third Part Middleware
     # 'whitenoise.middleware.WhiteNoiseMiddleware',  # 临时注释
 
-    # My Middleware
-    'main_app.middleware.LoginCheckMiddleWare',
+    # My Middleware - 多角色认证中间件必须在AuthenticationMiddleware之后，LoginCheckMiddleWare之前
+    'main_app.middleware.MultiRoleAuthMiddleware',  # 设置request.user为对应角色的用户
+    'main_app.middleware.LoginCheckMiddleWare',  # 检查权限
 ]
 
 ROOT_URLCONF = 'student_management_system.urls'

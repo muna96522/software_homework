@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>AdminLTE 3 | Log in</title>
+    <title>学生管理系统 | 登录</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Font Awesome -->
@@ -18,79 +18,145 @@
     <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    <!-- Google Recaptcha     -->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        .login-box {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        .login-card {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .login-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 0.5rem 1rem rgba(0, 123, 255, 0.25);
+        }
+        .login-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+        }
+        .login-card-header i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .role-select-wrapper {
+            position: relative;
+        }
+        .role-select-wrapper i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #6c757d;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        select.form-control {
+            padding-right: 40px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+    </style>
 </head>
 
-<body class="hold-transition login-page">
+<body class="hold-transition login-page" style="background: #f4f6f9;">
     <div class="login-box">
-        <div class="login-logo">
-            <a href="../../index2.html"><b>Admin</b>LTE</a>
-
-        </div>
-        <!-- /.login-logo -->
-        <div class="card">
-            <div class="card-body login-card-body">
-                <p class="login-box-msg">Sign in to start your session</p>
+                <div class="login-logo text-center mb-4">
+                    <h1><b>学生管理系统</b></h1>
+                    <p class="text-muted">请选择您的身份进行登录</p>
+                </div>
+                
                 {% if messages %}
-                <div class="col-12">
-                    {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                    <div class="alert alert-danger text-center ">
-                        {{message }}
-                    </div>
-                    {% endif %}
-                    {% endfor %}
+        <div class="mb-3">
+                        {% for message in messages %}
+                        {% if message.tags == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% elif message.tags == 'success' %}
+            <div class="alert alert-success alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
                 </div>
                 {% endif %}
-                <form action="doLogin/" method="post">
-                    {% csrf_token %}
-                    <div class="input-group mb-3">
-                        <input required type="email" name='email' class="form-control" placeholder="Email">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input required type="password" name='password' class="form-control" placeholder="Password">
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="input-group mb-3">
-                        <div class="g-recaptcha" data-sitekey="6LfswtgZAAAAAJ7bhwqZZtDpBsc75ekH6FWA4Fnt"></div>
 
+        <div class="card login-card">
+            <div class="login-card-header">
+                <i class="fas fa-sign-in-alt"></i>
+                <h4>用户登录</h4>
+                            </div>
+                            <div class="card-body">
+                <form method="post" id="loginForm">
+                                    {% csrf_token %}
+                    
+                    <!-- 角色选择 -->
+                                    <div class="input-group mb-3">
+                        <div class="role-select-wrapper" style="width: 100%;">
+                            <select required name="user_role" id="userRole" class="form-control">
+                                <option value="">请选择您的身份</option>
+                                <option value="admin">管理员</option>
+                                <option value="teacher">教师</option>
+                                <option value="student">学生</option>
+                            </select>
+                            <i class="fas fa-user-tag"></i>
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="icheck-primary">
+
+                    <!-- 邮箱输入 -->
+                                    <div class="input-group mb-3">
+                        <input required type="email" name='email' id="email" class="form-control" placeholder="邮箱">
+                                        <div class="input-group-append">
+                                            <div class="input-group-text">
+                                                <span class="fas fa-envelope"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                    
+                    <!-- 密码输入 -->
+                                    <div class="input-group mb-3">
+                        <input required type="password" name='password' id="password" class="form-control" placeholder="密码">
+                                        <div class="input-group-append">
+                                            <div class="input-group-text">
+                                                <span class="fas fa-lock"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="row">
+                                        <div class="col-8">
+                                            <div class="icheck-primary">
                                 <input type="checkbox" id="remember">
-                                <label for="remember">
-                                    Remember Me
-                                </label>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-4">
-                            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                        </div>
-
-
-                        <!-- /.col -->
-                    </div>
-                </form>
-
-
-                <p class="mb-1">
-                    <a href="{% url 'password_reset' %}">I forgot my password</a>
-                </p>
-
+                                <label for="remember">记住我</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <button type="submit" class="btn btn-primary btn-block">登录</button>
+                                        </div>
+                                    </div>
+                                </form>
+                                <p class="mb-1 mt-3 text-center">
+                                    <a href="{% url 'password_reset' %}" class="text-sm">忘记密码？</a>
+                                </p>
             </div>
-            <!-- /.login-card-body -->
         </div>
     </div>
     <!-- /.login-box -->
@@ -101,6 +167,56 @@
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 根据选择的角色动态设置表单提交URL
+            $('#loginForm').on('submit', function(e) {
+                var role = $('#userRole').val();
+                if (!role) {
+                    e.preventDefault();
+                    alert('请选择您的身份');
+                    return false;
+                }
+                
+                // 根据角色设置不同的action URL
+                var actionUrl = '';
+                if (role === 'admin') {
+                    actionUrl = "{% url 'admin_login' %}";
+                } else if (role === 'teacher') {
+                    actionUrl = "{% url 'teacher_login' %}";
+                } else if (role === 'student') {
+                    actionUrl = "{% url 'student_login' %}";
+                }
+                
+                $(this).attr('action', actionUrl);
+            });
+            
+            // 根据选择的角色动态改变卡片头部颜色和图标
+            $('#userRole').on('change', function() {
+                var role = $(this).val();
+                var $header = $('.login-card-header');
+                var $icon = $header.find('i');
+                
+                // 移除所有可能的类
+                $header.removeClass('admin staff student');
+                
+                if (role === 'admin') {
+                    $header.css('background', 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)');
+                    $icon.removeClass().addClass('fas fa-user-shield');
+                } else if (role === 'teacher') {
+                    $header.css('background', 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)');
+                    $icon.removeClass().addClass('fas fa-chalkboard-teacher');
+                } else if (role === 'student') {
+                    $header.css('background', 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)');
+                    $icon.removeClass().addClass('fas fa-user-graduate');
+                } else {
+                    $header.css('background', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
+                    $icon.removeClass().addClass('fas fa-sign-in-alt');
+                }
+            });
+        });
+    </script>
 
 </body>
 

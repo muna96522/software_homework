@@ -1,0 +1,83 @@
+{% extends 'main_app/base.html' %}
+{% load static %}
+{% block page_title %}{{page_title}}{% endblock page_title %}
+
+{% block content %}
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{page_title}}</h3>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="example2" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>活动标题</th>
+                                    <th>发起教师</th>
+                                    <th>活动地点</th>
+                                    <th>开始时间</th>
+                                    <th>结束时间</th>
+                                    <th>报名人数</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ activity.title }}</td>
+                                    <td>{{ activity.organizer.admin.last_name }}{{ activity.organizer.admin.first_name }}</td>
+                                    <td>{{ activity.location }}</td>
+                                    <td>{{ activity.start_time|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ activity.end_time|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        {% with reg_count=activity.activityregistration_set.count %}
+                                            {% if activity.max_participants > 0 %}
+                                                {{ reg_count }} / {{ activity.max_participants }}
+                                            {% else %}
+                                                {{ reg_count }} (不限)
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        {% if activity.id in registered_activity_ids %}
+                                            <span class="badge badge-success">已报名</span>
+                                            {% if activity.id in feedback_activity_ids %}
+                                                <span class="badge badge-info">已评价</span>
+                                            {% else %}
+                                                <a href="{% url 'student_feedback_activity' activity.id %}" class="btn btn-primary btn-sm">
+                                                    <i class="fas fa-star"></i> 评价
+                                                </a>
+                                            {% endif %}
+                                        {% else %}
+                                            {% if activity.max_participants > 0 and activity.activityregistration_set.count >= activity.max_participants %}
+                                                <span class="badge badge-danger">已满员</span>
+                                            {% else %}
+                                                <a href="{% url 'student_register_activity' activity.id %}" class="btn btn-success btn-sm" onclick="return confirm('确定要报名此活动吗？')">
+                                                    <i class="fas fa-user-plus"></i> 报名
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center">暂无活动</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+

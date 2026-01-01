@@ -1,3 +1,6 @@
+"""
+    Web应用的部分视图函数
+"""
 import json
 import requests
 from django.contrib import messages
@@ -258,6 +261,7 @@ def logout_role(request, role):
 
 @csrf_exempt
 def get_attendance(request):
+    """获取指定课程和学期的出勤记录"""
     subject_id = request.POST.get('subject')
     session_id = request.POST.get('session')
     try:

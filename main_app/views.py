@@ -69,145 +69,42 @@ def doLogin(request, **kwargs):
             return redirect("/")
 
 
-def do_admin_login(request):
-    """管理员登录"""
+def _do_role_login(request, expected_user_type, role_name, home_url):
+    """通用角色登录函数"""
     if request.method != 'POST':
         return HttpResponse("<h4>拒绝访问</h4>")
-    else:
-        # Google recaptcha - 已注释，不再使用
-        # captcha_token = request.POST.get('g-recaptcha-response')
-        # captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        # captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
-        # data = {
-        #     'secret': captcha_key,
-        #     'response': captcha_token
-        # }
-        # # Make request
-        # try:
-        #     captcha_server = requests.post(url=captcha_url, data=data, timeout=5)
-        #     response = json.loads(captcha_server.text)
-        #     if response.get('success') == False:
-        #         messages.error(request, '验证码无效，请重试')
-        #         return redirect('/')
-        # except Exception as e:
-        #     # 在开发环境中，如果验证码验证失败，记录错误但继续
-        #     import logging
-        #     logger = logging.getLogger(__name__)
-        #     logger.warning(f'reCAPTCHA验证失败: {str(e)}')
-        #     # 可以选择在开发环境中跳过验证码验证
-        #     # messages.error(request, '验证码验证失败，请重试')
-        #     # return redirect('/')
-        
-        #Authenticate
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            # 验证用户类型
-            if str(user.user_type) != '1':
-                messages.error(request, "该账号不是管理员账号，请使用正确的登录入口")
-                return redirect("/")
-            # 使用多角色session存储，而不是Django默认的login()
-            set_user_to_role_session(request, user, '1')
-            messages.success(request, f"管理员 {user.email} 登录成功")
-            return redirect(reverse("admin_home"))
-        else:
-            messages.error(request, "邮箱或密码错误")
-            return redirect("/")
+    
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    user = authenticate(request, username=email, password=password)
+    
+    if user is None:
+        messages.error(request, "邮箱或密码错误")
+        return redirect("/")
+    
+    if str(user.user_type) != expected_user_type:
+        role_names = {'1': '管理员', '2': '教师', '3': '学生'}
+        messages.error(request, f"该账号不是{role_names[expected_user_type]}账号，请使用正确的登录入口")
+        return redirect("/")
+    
+    set_user_to_role_session(request, user, expected_user_type)
+    messages.success(request, f"{role_name} {user.email} 登录成功")
+    return redirect(reverse(home_url))
+
+
+def do_admin_login(request):
+    """管理员登录"""
+    return _do_role_login(request, '1', '管理员', 'admin_home')
 
 
 def do_teacher_login(request):
     """教师登录"""
-    if request.method != 'POST':
-        return HttpResponse("<h4>拒绝访问</h4>")
-    else:
-        # Google recaptcha - 已注释，不再使用
-        # captcha_token = request.POST.get('g-recaptcha-response')
-        # captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        # captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
-        # data = {
-        #     'secret': captcha_key,
-        #     'response': captcha_token
-        # }
-        # # Make request
-        # try:
-        #     captcha_server = requests.post(url=captcha_url, data=data, timeout=5)
-        #     response = json.loads(captcha_server.text)
-        #     if response.get('success') == False:
-        #         messages.error(request, '验证码无效，请重试')
-        #         return redirect('/')
-        # except Exception as e:
-        #     # 在开发环境中，如果验证码验证失败，记录错误但继续
-        #     import logging
-        #     logger = logging.getLogger(__name__)
-        #     logger.warning(f'reCAPTCHA验证失败: {str(e)}')
-        #     # 可以选择在开发环境中跳过验证码验证
-        #     # messages.error(request, '验证码验证失败，请重试')
-        #     # return redirect('/')
-        
-        #Authenticate
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            # 验证用户类型
-            if str(user.user_type) != '2':
-                messages.error(request, "该账号不是教师账号，请使用正确的登录入口")
-                return redirect("/")
-            # 使用多角色session存储，而不是Django默认的login()
-            set_user_to_role_session(request, user, '2')
-            messages.success(request, f"教师 {user.email} 登录成功")
-            return redirect(reverse("staff_home"))
-        else:
-            messages.error(request, "邮箱或密码错误")
-            return redirect("/")
+    return _do_role_login(request, '2', '教师', 'staff_home')
 
 
 def do_student_login(request):
     """学生登录"""
-    if request.method != 'POST':
-        return HttpResponse("<h4>拒绝访问</h4>")
-    else:
-        # Google recaptcha - 已注释，不再使用
-        # captcha_token = request.POST.get('g-recaptcha-response')
-        # captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        # captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
-        # data = {
-        #     'secret': captcha_key,
-        #     'response': captcha_token
-        # }
-        # # Make request
-        # try:
-        #     captcha_server = requests.post(url=captcha_url, data=data, timeout=5)
-        #     response = json.loads(captcha_server.text)
-        #     if response.get('success') == False:
-        #         messages.error(request, '验证码无效，请重试')
-        #         return redirect('/')
-        # except Exception as e:
-        #     # 在开发环境中，如果验证码验证失败，记录错误但继续
-        #     import logging
-        #     logger = logging.getLogger(__name__)
-        #     logger.warning(f'reCAPTCHA验证失败: {str(e)}')
-        #     # 可以选择在开发环境中跳过验证码验证
-        #     # messages.error(request, '验证码验证失败，请重试')
-        #     # return redirect('/')
-        
-        #Authenticate
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        user = authenticate(request, username=email, password=password)
-        if user is not None:
-            # 验证用户类型
-            if str(user.user_type) != '3':
-                messages.error(request, "该账号不是学生账号，请使用正确的登录入口")
-                return redirect("/")
-            # 使用多角色session存储，而不是Django默认的login()
-            set_user_to_role_session(request, user, '3')
-            messages.success(request, f"学生 {user.email} 登录成功")
-            return redirect(reverse("student_home"))
-        else:
-            messages.error(request, "邮箱或密码错误")
-            return redirect("/")
+    return _do_role_login(request, '3', '学生', 'student_home')
 
 
 
